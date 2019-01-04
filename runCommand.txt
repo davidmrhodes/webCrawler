@@ -1,0 +1,1 @@
+java -jar build/libs/webCrawler-all.jar -baseUrl https://babel.hathitrust.org -firstPage /cgi/ssd?id=mdp.35112104867553\;seq=9cgi/ssd?id=mdp.35112104867553\;seq=9 -outputDir /tmp/book1/

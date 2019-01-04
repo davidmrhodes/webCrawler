@@ -5,12 +5,11 @@ import org.jsoup.nodes.Document;
 import org.junit.Test;
 
 import java.io.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class PageParserTest {
+public class PageParserTest extends AbstractTest {
 
     @Test
     public void testFirstPage() throws IOException {
@@ -18,7 +17,7 @@ public class PageParserTest {
                 getResourceAsStream("sampleFirstPage.html");
         Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
 
-        String expectePage1Text = readFile("expectedTextFirstPage.txt");
+        String expectePage1Text = readResourceFile("expectedTextFirstPage.txt");
 
         PageParser pageParser = new PageParser(doc);
 
@@ -35,7 +34,7 @@ public class PageParserTest {
                 getResourceAsStream("sampleMiddlePage.html");
         Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
 
-        String expectePage1Text = readFile("expectedTextMiddlePage.txt");
+        String expectePage1Text = readResourceFile("expectedTextMiddlePage.txt");
 
         PageParser pageParser = new PageParser(doc);
 
@@ -47,12 +46,44 @@ public class PageParserTest {
     }
 
     @Test
+    public void testNoRecoverableTextPage() throws IOException {
+        InputStream input = PageParserTest.class.getClassLoader().
+                getResourceAsStream("sampleNoRecoverableText.html");
+        Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
+
+        PageParser pageParser = new PageParser(doc);
+
+        assertEquals("Text Empty", pageParser.getPageText());
+
+        assertEquals("/cgi/ssd?id=coo1.ark%3A%2F13960%2Ft0vq3hw2r;page=ssd;view=plaintext;seq=11",
+                pageParser.getNextPage());
+
+    }
+
+    @Test
+    public void testPageContainsImage() throws IOException {
+        InputStream input = PageParserTest.class.getClassLoader().
+                getResourceAsStream("samplePageContainsImage.html");
+        Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
+
+        PageParser pageParser = new PageParser(doc);
+
+        String expectePag1Text = readResourceFile("expectedTextPageContainsImage.txt");
+
+        assertEquals(expectePag1Text, pageParser.getPageText());
+
+        assertEquals("/cgi/ssd?id=mdp.35112104867553;page=ssd;view=plaintext;seq=10;num=ii",
+                pageParser.getNextPage());
+
+    }
+
+    @Test
     public void testLastPage() throws IOException {
         InputStream input = PageParserTest.class.getClassLoader().
                 getResourceAsStream("sampleLastPage.html");
         Document doc = Jsoup.parse(input, "UTF-8", "http://example.com/");
 
-        String expectePage1Text = readFile("expectedTextLastPage.txt");
+        String expectePage1Text = readResourceFile("expectedTextLastPage.txt");
 
         PageParser pageParser = new PageParser(doc);
 
@@ -62,11 +93,4 @@ public class PageParserTest {
 
     }
 
-    public String readFile(String fileName) throws IOException {
-        InputStream input = PageParserTest.class.getClassLoader().
-                getResourceAsStream(fileName);
-        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(input))) {
-            return buffer.lines().collect(Collectors.joining("\n"));
-        }
-    }
 }
